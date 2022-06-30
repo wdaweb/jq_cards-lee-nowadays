@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background: url('https://m.media-amazon.com/images/I/81aR5NJC2CL._SL1500_.jpg');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+    }
+
+    #game {
+      width: 100%;
+      height: 100%;
+
+
+    }
+
+    .card {
+      width: 15%;
+      height: 20%;
+      margin: 20px 30px 30px 55px;
+      position: relative;
+      float: left;
+      border-radius: 50%;
+      /* margin-right: 1px; */
+      /* 設定子元素在 3D 空間內 */
+      transform-style: preserve-3d;
+      transition: transform 1s;
+
+    }
+
+    .card-front {
+      width: 100%;
+      height: 100%;
+      background-image: url('./travel/01.png');
+      background-size: contain;
+      /* object-fit: contain; */
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      transform: rotateY(180deg);
+      /* 翻過來後隱藏另一面 */
+      backface-visibility: hidden;
+      transition: 0.5s;
+    }
+
+    .card-back {
+      width: 100%;
+      height: 100%;
+      background-image: url('./travel/earth.png');
+      background-size: 100% 100%;
+      /* object-fit: contain; */
+      /* background-repeat: no-repeat; */
+      background-position: center;
+      position: absolute;
+      /* 翻過來後隱藏另一面 */
+      backface-visibility: hidden;
+    }
+
+    .card-open {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="game">
+
+  </div>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
+    integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=='
+    crossorigin='anonymous'></script>
+  <script>
+    // 產生卡片
+    for (let i = 0; i < 20; i++) {
+      $('#game').append(`
+      <div class="card">
+        <div class="card-front"></div>
+        <div class="card-back"></div>
+      </div>
+      `)
+    }
+
+    // 決定數字並打散
+    for (let i = 0; i < 10; i++) {
+      // 決定數字
+      const num = i % 10 + 1
+      $('.card').eq(i).find('.card-front').css('backgroundImage', `url('./travel/0${num}.png')`)
+      $('.card').eq(i).attr('data-card', num)
+
+      // 打散
+      const target = Math.round(Math.random() * 9)
+      $('.card').eq(target).insertAfter($('.card').eq(i))
+    }
+    for (let i = 10; i < 20; i++) {
+      // 決定數字
+      const num = i % 10 + 1
+      const num1 = i % 20 + 1
+      $('.card').eq(i).find('.card-front').css('backgroundImage', `url('./travel/${num}.png')`)
+      $('.card').eq(i).attr('data-card', num)
+
+      // 打散
+      const target = Math.round((Math.random() * 9)+10)
+      $('.card').eq(target).insertAfter($('.card').eq(i))
+    }
+
+
+    $('#game').on('click', '.card', function () {
+      // 最多一次翻兩張，而且這張牌還沒翻開
+      if ($('.card-open').length < 2 && !$(this).hasClass('card-open')) {
+        $(this).addClass('card-open')
+      }
+      // 如果翻開兩張了
+      if ($('.card-open').length === 2) {
+        // 如果數字一樣
+        if ($('.card-open').eq(0).attr('data-card') === $('.card-open').eq(1).attr('data-card')) {
+          // 用class標記已完成
+          $('.card-open').addClass('card-ok')
+          // 將 .card-open 淡出， 如果對 .card-open淡出會把3D壓平只看到卡背
+          $('.card-open .card-front').fadeTo(1000, 0)
+        }
+        // 不管是否一樣都將卡片翻回
+        setTimeout(function () {
+          // 如果card-open裡的.card-front透明度不是1，把.card-open透明度設為0
+          $('.card-open').each(function () {
+            if ($(this).find('.card-front').css('opacity') !== '1') {
+              $(this).css('opacity', 0)
+            }
+          })
+          $('.card-open').removeClass('card-open')
+          if ($('.card-ok').length === 20) {
+            swal.fire({
+              title: '恭喜過關'
+            }
+            )
+          }
+        }, 1000)
+      }
+    })
+  </script>
+</body>
+
+</html>
